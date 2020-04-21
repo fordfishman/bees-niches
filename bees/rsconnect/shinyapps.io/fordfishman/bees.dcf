@@ -1,0 +1,12 @@
+name: bees
+title: bees
+username:
+account: fordfishman
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2153578
+bundleId: 3041252
+url: https://fordfishman.shinyapps.io/bees/
+when: 1587420785.39572
+asMultiple: FALSE
+asStatic: FALSE

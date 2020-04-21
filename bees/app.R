@@ -67,13 +67,13 @@ server <- function(input, output) {
         numPlants <- 100 # number of plant species
         plantSpBee <- input$plantSpBee # number of plant species each bee species uses
         beePerPlant <- perSpeciesBee/plantSpBee # number of bees going to each plant
-        plantVisits <- rep(0, numPlants)
-        overlapAll <- c()
-        reps <- rep(0,10)
-        for(ind in 1:10){
+        
+        overlapAll <- rep(0,100)
+        reps <- rep(0,100)
+        for(ind in 1:100){
+            plantVisits <- rep(0, numPlants)
             overlap <- c()
             for (i in 1:beeNum){
-                # interactionList[[i]] <- sample(1:numPlants, size = plantSpBee)
                 a <- sample(1:numPlants, size = plantSpBee)
                 overlap <- union(overlap, a)
                 for (j in a){
@@ -88,15 +88,34 @@ server <- function(input, output) {
             a = sum(y)
             reps[ind] <- a
             overlap.perc <- length(overlap)/100
-            overlapAll <- c(overlapAll,overlap.perc)
+            overlapAll[ind] <- overlap.perc
         }
-        # barplot(reps,names.arg = overlapAll, col = 'darkgray', ylab="Reproductive Output", ylim=c(0,100), main = "Fig 1", xlab="Replicates")
-        # plot(overlapAll, reps, col = 'darkgray', ylab="Reproductive Output", ylim=c(0,100), xlim=c(0,1), main = "Fig 1", xlab="Niche Overlap")
-        ggplot(NULL, aes(x=overlapAll,y=reps))+
-            geom_point(size = 2) +
-            scale_y_continuous("Reproductive Output", limits = c(0,100)) +
-            scale_x_continuous("Proportion of Plants Visited",limits = c(0,1))+
+        # ggplot(NULL, aes(x=overlapAll,y=reps))+
+        #     geom_point(size = 2) +
+        #     scale_y_continuous("Seed Production", limits = c(0,100)) +
+        #     scale_x_continuous("Proportion of Plants Visited",limits = c(0,1))+
+        #     ggtitle("Fig. 1") +
+        #     theme(panel.grid.major = element_blank(), 
+        #           panel.grid.minor = element_blank(),
+        #           panel.background = element_blank(), 
+        #           axis.line = element_line(colour = "black"),
+        #           axis.text = element_text(size = 16),
+        #           axis.title = element_text(size=16),
+        #           axis.ticks = element_line(size = 1),
+        #           axis.ticks.length = unit(5,"pt"),
+        #           plot.title = element_text(size=18, face = "bold"))
+        ov <- round(overlapAll,1)
+        ov <- ifelse(ov==0,0.1,ov)
+        ov <- as.factor(ov)
+        
+        ggplot(NULL, aes(x=reps,fill=ov))+
+            geom_histogram(binwidth=1) +
+            scale_y_continuous("Frequency", limits = c(0,100)) +
+            scale_x_continuous("Seed Production",limits = c(0,100))+
             ggtitle("Fig. 1") +
+            scale_fill_grey("Proportion of\nPlants Reached",
+                            limits=as.character((1:10)/10),
+                            end=0,start=0.8) +
             theme(panel.grid.major = element_blank(), 
                   panel.grid.minor = element_blank(),
                   panel.background = element_blank(), 
@@ -126,22 +145,26 @@ server <- function(input, output) {
         numPlants <- 100 # number of plant species
         plantSpBee <- 10 # number of plant species each bee species uses
         beePerPlant <- perSpeciesBee/plantSpBee # number of bees going to each plant
-        plantVisits <- rep(0, numPlants)
-        # interactionList <- list()
-        reps <- rep(0,10)
-        b <- rep(0,10)
+        
+        reps <- rep(0,100)
+        b <- rep(0,100)
         if (supSpPresent){
             
-            b <- sample(1:5, size =10, replace = TRUE) # the superspecies
+            b <- sample(1:5, size =100, replace = TRUE) # the superspecies
             
         } 
-        for(ind in 1:10){
+        supSp <- c()
+        for(ind in 1:100){
+            plantVisits <- rep(0, numPlants)
+            supSpecies <- "Absent"
             for (i in 1:beeNum){
                 mult <- 1.0
+                
                 if (i==b[ind]){
                     mult <- 8
+                    supSpecies <- "Present"
+                    
                 }
-                # interactionList[[i]] <- sample(1:numPlants, size = plantSpBee)
                 a <- sample(1:numPlants, size = plantSpBee*mult)
                 
                 for (j in a){
@@ -149,12 +172,28 @@ server <- function(input, output) {
                 }
                 
             }
+            supSp <- c(supSp, supSpecies)
             y = 1*(plantVisits)/(0.1+(plantVisits))
             a = sum(y)
             reps[ind] <- a
         }
-        barplot(reps,col = 'darkgray', ylab="Reproductive Output", ylim=c(0,100), main = "Fig 2", xlab="Replicates")
-        
+        ggplot(NULL, aes(x=reps))+
+            geom_histogram(aes(fill = supSp), binwidth = 1)+
+            scale_y_continuous("Frequency", limits = c(0,100)) +
+            scale_x_continuous("Seed Production",limits = c(0,100))+
+            scale_fill_manual("Superspecies",
+                              limits=c("Absent","Present"),
+                              values = c("black","grey")) +
+            ggtitle("Fig. 2") +
+            theme(panel.grid.major = element_blank(), 
+                  panel.grid.minor = element_blank(),
+                  panel.background = element_blank(), 
+                  axis.line = element_line(colour = "black"),
+                  axis.text = element_text(size = 16),
+                  axis.title = element_text(size=16),
+                  axis.ticks = element_line(size = 1),
+                  axis.ticks.length = unit(5,"pt"),
+                  plot.title = element_text(size=18, face = "bold")) 
     })
 }
 

@@ -19,7 +19,14 @@ ui <- fluidPage(
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
-            h4("Fig. 1: Niche Complementarity"),
+            h3("Fig. 1: Niche Complementarity"),
+            p("Based upon the experiments from ",
+              a("Frund et al. (2013)",
+                href=" https://doi.org/10.1890/12-1620.1",
+                target="_blank"),
+              " set the number of species you want to pollinate your plant community. The number of actual bees is constant."),
+            p("You can also set the percentage of plant species each bee will pollinate. The amount of overlap among the bees is random."),
+            p("Each experiment has 100 replicates, plotted on the histogram. Experiment is re-run when settings are changed independently for the 2 figures."),
             sliderInput("beeNum1",
                         "Number of bee species:",
                         min = 1,
@@ -30,10 +37,13 @@ ui <- fluidPage(
                         "Percentage of plant species used by each bee species:",
                         min = 1,
                         max = 100,
-                        value = 3),
-            
-            h4("Fig. 2: Sampling Effect"),
-            
+                        value = 10),
+            p(),
+            h3("Fig. 2: Sampling Effect"),
+            p("Each bee is now set to use 10% of plant species (besides potential superspecies)."),
+            p("A superspecies here is defined as one that can pollinate many more species than other bees,
+              and pollination leads to more seed production. If there is a superspecies included, 1 of 5 species
+              will be a superspecies, and you can pick from 1 to 5 of these to run your experiment."),
             sliderInput("beeNum2",
                         "Number of bee species:",
                         min = 1,
@@ -49,7 +59,9 @@ ui <- fluidPage(
         # Show a plot of the generated distribution
         mainPanel(
            plotOutput("fig1"),
-           plotOutput("fig2")
+           plotOutput("fig2"),
+           img(src='beemovie.jpg', align = "right"),
+           img(src='nic.png', align = "right")
         )
     )
 )
@@ -95,9 +107,9 @@ server <- function(input, output) {
         #     scale_y_continuous("Seed Production", limits = c(0,100)) +
         #     scale_x_continuous("Proportion of Plants Visited",limits = c(0,1))+
         #     ggtitle("Fig. 1") +
-        #     theme(panel.grid.major = element_blank(), 
+        #     theme(panel.grid.major = element_blank(),
         #           panel.grid.minor = element_blank(),
-        #           panel.background = element_blank(), 
+        #           panel.background = element_blank(),
         #           axis.line = element_line(colour = "black"),
         #           axis.text = element_text(size = 16),
         #           axis.title = element_text(size=16),
@@ -109,28 +121,24 @@ server <- function(input, output) {
         ov <- as.factor(ov)
         
         ggplot(NULL, aes(x=reps,fill=ov))+
-            geom_histogram(binwidth=1) +
+            geom_histogram(binwidth=1, alpha = 0.7) +
             scale_y_continuous("Frequency", limits = c(0,100)) +
             scale_x_continuous("Seed Production",limits = c(0,100))+
             ggtitle("Fig. 1") +
             scale_fill_grey("Proportion of\nPlants Reached",
                             limits=as.character((1:10)/10),
                             end=0,start=0.8) +
-            theme(panel.grid.major = element_blank(), 
+            theme(panel.grid.major = element_blank(),
                   panel.grid.minor = element_blank(),
-                  panel.background = element_blank(), 
+                  panel.background = element_blank(),
                   axis.line = element_line(colour = "black"),
                   axis.text = element_text(size = 16),
                   axis.title = element_text(size=16),
                   axis.ticks = element_line(size = 1),
                   axis.ticks.length = unit(5,"pt"),
-                  plot.title = element_text(size=18, face = "bold")) 
+                  plot.title = element_text(size=18, face = "bold"))
             
-        # x <- faithful[, 2]
-        # bins <- seq(min(x), max(x), length.out = beeNum + 1)
-        # 
-        # # draw the histogram with the specified number of bins
-        # hist(x, breaks = bins, col = 'darkgray', border = 'white')
+
     })
     
     output$fig2 <- renderPlot({
@@ -178,7 +186,7 @@ server <- function(input, output) {
             reps[ind] <- a
         }
         ggplot(NULL, aes(x=reps))+
-            geom_histogram(aes(fill = supSp), binwidth = 1)+
+            geom_histogram(aes(fill = supSp), binwidth = 1, alpha = 0.7)+
             scale_y_continuous("Frequency", limits = c(0,100)) +
             scale_x_continuous("Seed Production",limits = c(0,100))+
             scale_fill_manual("Superspecies",
@@ -195,6 +203,7 @@ server <- function(input, output) {
                   axis.ticks.length = unit(5,"pt"),
                   plot.title = element_text(size=18, face = "bold")) 
     })
+    
 }
 
 # Run the application 

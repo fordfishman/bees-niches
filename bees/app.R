@@ -60,8 +60,8 @@ ui <- fluidPage(
         mainPanel(
            plotOutput("fig1"),
            plotOutput("fig2"),
-           img(src='beemovie.jpg', align = "right"),
-           img(src='nic.png', align = "right")
+           # img(src='beemovie.jpg', align = "right"),
+           # img(src='nic.png', align = "right")
         )
     )
 )
